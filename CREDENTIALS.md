@@ -4,32 +4,32 @@
 
 ### Bot Token
 ```
-BOT_TOKEN=8585605391:AAF6FWxlLSNvDLHqt0Al5-iy7BH7Iu7S640
+BOT_TOKEN=
 ```
 
 ### Spotify API
 ```
-SPOTIFY_CLIENT_ID=3d5660b77d6a4aba827c3865c6397a22
-SPOTIFY_CLIENT_SECRET=cd2b556d3e2f42598874ccca1d6e310b
+SPOTIFY_CLIENT_ID=
+SPOTIFY_CLIENT_SECRET=
 ```
 
 ### Redis Database (Upstash)
 ```
-REDIS_URL=https://together-snail-28026.upstash.io
-REDIS_TOKEN=AW16AAIncDExZmI3ZWM3YzUwMjA0MzIxOWJmOTQxY2VkMDQzNDdhZnAxMjgwMjY
+REDIS_URL=
+REDIS_TOKEN=
 ```
 
 ### Proxies (6 proxies)
 ```
-PROXIES=http://203033:JmNd95Z3vcX@196.51.85.7:8800,http://203033:JmNd95Z3vcX@196.51.218.227:8800,http://203033:JmNd95Z3vcX@196.51.106.149:8800,http://203033:JmNd95Z3vcX@170.130.62.211:8800,http://203033:JmNd95Z3vcX@196.51.106.30:8800,http://203033:JmNd95Z3vcX@196.51.85.207:8800
+PROXIES=
 ```
 
 ### Sticker IDs (Optional)
 ```
-IG_STICKER=CAACAgIAAxkBAAEadEdpekZa1-2qYm-1a3dX0JmM_Z9uDgAC4wwAAjAT0Euml6TE9QhYWzgE
-YT_STICKER=CAACAgIAAxkBAAEaedlpez9LOhwF-tARQsD1V9jzU8iw1gACQjcAAgQyMEixyZ896jTkCDgE
-PIN_STICKER=CAACAgIAAxkBAAEaegZpe0KJMDIkiCbudZrXhJDwBXYHqgACExIAAq3mUUhZ4G5Cm78l2DgE
-MUSIC_STICKER=CAACAgIAAxkBAAEaegZpe0KJMDIkiCbudZrXhJDwBXYHqgACExIAAq3mUUhZ4G5Cm78l2DgE
+IG_STICKER=
+YT_STICKER=
+PIN_STICKER=
+MUSIC_STICKER=
 ```
 
 ## Quick Deployment on VPS
@@ -41,31 +41,31 @@ MUSIC_STICKER=CAACAgIAAxkBAAEaegZpe0KJMDIkiCbudZrXhJDwBXYHqgACExIAAq3mUUhZ4G5Cm7
 
 ### Method 2: Export as Environment Variables
 ```bash
-export BOT_TOKEN="8585605391:AAF6FWxlLSNvDLHqt0Al5-iy7BH7Iu7S640"
-export SPOTIFY_CLIENT_ID="3d5660b77d6a4aba827c3865c6397a22"
-export SPOTIFY_CLIENT_SECRET="cd2b556d3e2f42598874ccca1d6e310b"
+export BOT_TOKEN=""
+export SPOTIFY_CLIENT_ID=""
+export SPOTIFY_CLIENT_SECRET=""
 export REDIS_URL="https://together-snail-28026.upstash.io"
-export REDIS_TOKEN="AW16AAIncDExZmI3ZWM3YzUwMjA0MzIxOWJmOTQxY2VkMDQzNDdhZnAxMjgwMjY"
-export PROXIES="http://203033:JmNd95Z3vcX@196.51.85.7:8800,http://203033:JmNd95Z3vcX@196.51.218.227:8800,http://203033:JmNd95Z3vcX@196.51.106.149:8800,http://203033:JmNd95Z3vcX@170.130.62.211:8800,http://203033:JmNd95Z3vcX@196.51.106.30:8800,http://203033:JmNd95Z3vcX@196.51.85.207:8800"
+export REDIS_TOKEN=""
+export PROXIES=""
 ```
 
 ### Method 3: Using systemd service
 Create `/etc/systemd/system/nagu-bot.service`:
 ```ini
 [Unit]
-Description=NAGU Downloader Bot
+Description=
 After=network.target
 
 [Service]
 Type=simple
 User=your_user
 WorkingDirectory=/path/to/bot
-Environment="BOT_TOKEN=8585605391:AAF6FWxlLSNvDLHqt0Al5-iy7BH7Iu7S640"
-Environment="SPOTIFY_CLIENT_ID=3d5660b77d6a4aba827c3865c6397a22"
-Environment="SPOTIFY_CLIENT_SECRET=cd2b556d3e2f42598874ccca1d6e310b"
+Environment="BOT_TOKEN="
+Environment="SPOTIFY_CLIENT_ID="
+Environment="SPOTIFY_CLIENT_SECRET="
 Environment="REDIS_URL=https://together-snail-28026.upstash.io"
-Environment="REDIS_TOKEN=AW16AAIncDExZmI3ZWM3YzUwMjA0MzIxOWJmOTQxY2VkMDQzNDdhZnAxMjgwMjY"
-Environment="PROXIES=http://203033:JmNd95Z3vcX@196.51.85.7:8800,http://203033:JmNd95Z3vcX@196.51.218.227:8800,http://203033:JmNd95Z3vcX@196.51.106.149:8800,http://203033:JmNd95Z3vcX@170.130.62.211:8800,http://203033:JmNd95Z3vcX@196.51.106.30:8800,http://203033:JmNd95Z3vcX@196.51.85.207:8800"
+Environment="REDIS_TOKEN="
+Environment="PROXIES="
 ExecStart=/usr/bin/python3 main.py
 Restart=always
 
@@ -86,12 +86,12 @@ The bot already has a Dockerfile. Build and run:
 ```bash
 docker build -t nagu-bot .
 docker run -d \
-  -e BOT_TOKEN="8585605391:AAF6FWxlLSNvDLHqt0Al5-iy7BH7Iu7S640" \
-  -e SPOTIFY_CLIENT_ID="3d5660b77d6a4aba827c3865c6397a22" \
-  -e SPOTIFY_CLIENT_SECRET="cd2b556d3e2f42598874ccca1d6e310b" \
+  -e BOT_TOKEN="" \
+  -e SPOTIFY_CLIENT_ID="" \
+  -e SPOTIFY_CLIENT_SECRET="" \
   -e REDIS_URL="https://together-snail-28026.upstash.io" \
-  -e REDIS_TOKEN="AW16AAIncDExZmI3ZWM3YzUwMjA0MzIxOWJmOTQxY2VkMDQzNDdhZnAxMjgwMjY" \
-  -e PROXIES="http://203033:JmNd95Z3vcX@196.51.85.7:8800,http://203033:JmNd95Z3vcX@196.51.218.227:8800,http://203033:JmNd95Z3vcX@196.51.106.149:8800,http://203033:JmNd95Z3vcX@170.130.62.211:8800,http://203033:JmNd95Z3vcX@196.51.106.30:8800,http://203033:JmNd95Z3vcX@196.51.85.207:8800" \
+  -e REDIS_TOKEN="" \
+  -e PROXIES="" \
   --name nagu-bot \
   nagu-bot
 ```
