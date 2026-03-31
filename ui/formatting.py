@@ -1,174 +1,376 @@
-"""Premium UI formatting system with styled Unicode font"""
+"""
+NAGU DOWNLOADER — UI Formatting System
+Clean • Modern • Telegram Native
+
+Design principles:
+  - Plain HTML messages — no monospace panels for user-facing messages
+  - Minimal captions — no debug, no timing, no platform info
+  - Quote original message on every reply
+  - Mention user on delivery
+  - All parse_mode = HTML
+"""
+from __future__ import annotations
+from typing import List
 from aiogram.types import User
 
+
+# ─── Core primitives ──────────────────────────────────────────────────────────
+
 def mention(user: User) -> str:
-    """Create clickable user mention"""
+    """Clickable HTML user mention"""
     if not user:
-        return "Unknown User"
-    name = user.first_name or "User"
-    return f'<a href="tg://user?id={user.id}">{name}</a>'
+        return "Unknown"
+    name = (user.first_name or "User")[:32]
+    safe = name.replace("<", "").replace(">", "")
+    return f'<a href="tg://user?id={user.id}">{safe}</a>'
+
+
+def format_delivered_with_mention(user_id: int, first_name: str) -> str:
+    """
+    Returns a clean delivered message with clickable user mention.
+    Uses HTML mode for safety.
+
+    Output: ✓ Delivered — <Name>
+    """
+    safe_name = (first_name or "User")[:32].replace("<", "").replace(">", "")
+    return f'✓ Delivered — <a href="tg://user?id={user_id}">{safe_name}</a>'
+
 
 def format_user_id(user_id: int) -> str:
-    """Format user ID as clickable link"""
-    return f'<code>{user_id}</code>'
+    """Monospace user ID"""
+    return f"<code>{user_id}</code>"
+
+
+def mono(text: str) -> str:
+    """Wrap in monospace code block"""
+    return f"<code>{text}</code>"
+
+
+def bold(text: str) -> str:
+    """Bold text"""
+    return f"<b>{text}</b>"
+
 
 def quoted_block(content: str) -> str:
-    """Wrap content in Telegram quoted block"""
+    """Telegram expandable quote block — legacy compat"""
     return f"<blockquote>{content}</blockquote>"
 
-def styled_text(text: str) -> str:
-    """
-    Convert text to styled Unicode font
-    Example: "Spotify Playlist Downloader" -> "𝐒ᴘᴏᴛɪꜰʏ 𝐏ʟᴀʏʟɪꜱᴛ 𝐃ᴏᴡɴʟᴏᴀᴅᴇʀ"
-    """
-    # Mapping for styled Unicode characters
-    bold_map = {
-        'A': '𝐀', 'B': '𝐁', 'C': '𝐂', 'D': '𝐃', 'E': '𝐄', 'F': '𝐅', 'G': '𝐆', 'H': '𝐇',
-        'I': '𝐈', 'J': '𝐉', 'K': '𝐊', 'L': '𝐋', 'M': '𝐌', 'N': '𝐍', 'O': '𝐎', 'P': '𝐏',
-        'Q': '𝐐', 'R': '𝐑', 'S': '𝐒', 'T': '𝐓', 'U': '𝐔', 'V': '𝐕', 'W': '𝐖', 'X': '𝐗',
-        'Y': '𝐘', 'Z': '𝐙'
-    }
-    
-    small_caps_map = {
-        'a': 'ᴀ', 'b': 'ʙ', 'c': 'ᴄ', 'd': 'ᴅ', 'e': 'ᴇ', 'f': 'ꜰ', 'g': 'ɢ', 'h': 'ʜ',
-        'i': 'ɪ', 'j': 'ᴊ', 'k': 'ᴋ', 'l': 'ʟ', 'm': 'ᴍ', 'n': 'ɴ', 'o': 'ᴏ', 'p': 'ᴘ',
-        'q': 'ǫ', 'r': 'ʀ', 's': 'ꜱ', 't': 'ᴛ', 'u': 'ᴜ', 'v': 'ᴠ', 'w': 'ᴡ', 'x': 'x',
-        'y': 'ʏ', 'z': 'ᴢ'
-    }
-    
-    result = []
-    for char in text:
-        if char in bold_map:
-            result.append(bold_map[char])
-        elif char in small_caps_map:
-            result.append(small_caps_map[char])
-        else:
-            result.append(char)
-    
-    return ''.join(result)
 
-def premium_panel(title: str, lines: list[str]) -> str:
-    """
-    Create premium quoted panel with clean serif font
-    
-    Args:
-        title: Panel title
-        lines: List of content lines
-    
-    Returns:
-        Formatted quoted block panel
-    """
-    content = f"{title}\n"
-    content += "━" * 30 + "\n"
-    content += "\n".join(lines)
+def styled_text(text: str) -> str:
+    """Legacy compat — returns text as-is"""
+    return text
+
+
+def premium_panel(title: str, lines: list) -> str:
+    """Legacy compat — builds a quoted panel"""
+    content = f"{title}\n{'─' * 28}\n" + "\n".join(lines)
     return quoted_block(content)
 
-def format_download_complete(user: User, elapsed: float, platform: str) -> str:
-    """Format download completion message"""
-    lines = [
-        f"User: {mention(user)}",
-        f"Platform: {platform}",
-        f"Time: {elapsed:.1f}s"
-    ]
-    return premium_panel("Download Complete", lines)
 
-def format_audio_info(user: User, title: str, artist: str, size_mb: float, elapsed: float) -> str:
-    """Format audio download info"""
-    lines = [
-        f"Title: {title}",
-        f"Artist: {artist}",
-        f"Size: {size_mb:.1f}MB",
-        f"User: {mention(user)}",
-        f"Time: {elapsed:.1f}s"
-    ]
-    return premium_panel("Audio Download", lines)
+def format_downloading() -> str:
+    """Legacy compat"""
+    return "⏳ Processing link..."
 
-def format_spotify_complete(user: User, total: int, sent: int) -> str:
-    """Format Spotify completion message with styled font"""
-    return f"{mention(user)} — {styled_text('All')} {sent} {styled_text('songs sent to your DM successfully')}"
+
+def code_panel(lines: List[str], width: int = 32) -> str:
+    """Monospace panel wrapped in <code> block — used for /id, /chatid, /myinfo"""
+    top    = f"╔{'═' * width}╗"
+    mid    = f"╠{'═' * width}╣"
+    bottom = f"╚{'═' * width}╝"
+
+    def row(text: str) -> str:
+        text = text[:width]
+        pad = width - len(text)
+        return f"║ {text}{' ' * (pad - 1)}║"
+
+    result = [top]
+    for line in lines:
+        if line == "---":
+            result.append(mid)
+        else:
+            result.append(row(line))
+    result.append(bottom)
+    return f"<code>{chr(10).join(result)}</code>"
+
+
+# ─── /start ───────────────────────────────────────────────────────────────────
 
 def format_welcome(user: User, user_id: int) -> str:
-    """Format welcome message for /start with styled font"""
-    username = f"@{user.username}" if user.username else "No username"
-    
-    lines = [
-        f"🎧 {styled_text('NAGU Downloader Bot')}",
-        "━" * 30,
-        "",
-        f"👤 {styled_text('User Information')}",
-        f"  ▸ Name: {user.first_name}",
-        f"  ▸ Username: {username}",
-        f"  ▸ ID: {format_user_id(user_id)}",
-        "",
-        f"⚡ {styled_text('Quick Commands')}",
-        f"  ▸ /help — {styled_text('View all features')}",
-        f"  ▸ /mp3 — {styled_text('Download music')}",
-        f"  ▸ {styled_text('Send any link to download')}",
-        "",
-        "💎 Owner: @bhosadih"
-    ]
-    return quoted_block("\n".join(lines))
+    """
+    👋 Welcome to Nagu Downloader
+
+    Send a link from:
+    • YouTube
+    • Instagram
+    • Spotify
+    • Pinterest
+
+    Fast. Clean. Delivered.
+    """
+    return (
+        "👋 <b>Welcome to Nagu Downloader</b>\n\n"
+        "Send a link from:\n"
+        "• YouTube\n"
+        "• Instagram\n"
+        "• Spotify\n"
+        "• Pinterest\n\n"
+        "Fast. Clean. Delivered."
+    )
+
+
+# ─── /help ────────────────────────────────────────────────────────────────────
 
 def format_help_video() -> str:
-    """Format video download help section with styled font"""
-    lines = [
-        f"📥 {styled_text('Video Download')}",
-        "━" * 30,
-        "",
-        f"{styled_text('Supported Platforms')}:",
-        f"  • Instagram — {styled_text('Posts, Reels, Stories')}",
-        f"  • YouTube — {styled_text('Videos, Shorts, Streams')}",
-        f"  • Pinterest — {styled_text('Video Pins')}",
-        "",
-        f"{styled_text('Usage')}:",
-        f"  {styled_text('Just send the link!')}"
-    ]
-    return quoted_block("\n".join(lines))
+    return (
+        "🎬 <b>Video Download</b>\n\n"
+        "Instagram  — Reels / Posts\n"
+        "YouTube    — Videos / Shorts\n"
+        "Pinterest  — Video Pins\n\n"
+        "Just send the link."
+    )
+
 
 def format_help_music() -> str:
-    """Format music download help section with styled font"""
-    lines = [
-        f"🎵 {styled_text('Music Download')}",
-        "━" * 30,
-        "",
-        f"{styled_text('Commands')}:",
-        f"  /mp3 [song name] — {styled_text('Search and download')}",
-        "",
-        f"🎧 {styled_text('Spotify Playlists')}:",
-        f"  • {styled_text('Send Spotify playlist URL in groups')}",
-        f"  • {styled_text('Songs sent to your DM')}",
-        f"  • {styled_text('Real-time progress updates')}"
-    ]
-    return quoted_block("\n".join(lines))
+    return (
+        "🎵 <b>Music Download</b>\n\n"
+        "Spotify   — Single track\n"
+        "Spotify   — Playlist (sent to DM)\n"
+        "YT Music  — 320kbps audio\n\n"
+        "Playlist songs are delivered to your DM."
+    )
+
 
 def format_help_info() -> str:
-    """Format info commands help section"""
-    lines = [
-        f"ℹ️ {styled_text('Info Commands')}",
-        "━" * 30,
-        "",
-        "  /id — Get user ID",
-        "  /chatid — Get chat ID",
-        "  /myinfo — Your full info"
-    ]
-    return quoted_block("\n".join(lines))
+    return (
+        "ℹ <b>Bot Commands</b>\n\n"
+        "/ping     — health check\n"
+        "/status   — bot status\n"
+        "/id       — your user ID\n"
+        "/chatid   — current chat ID\n"
+        "/myinfo   — account details\n"
+        "/broadcast — admin only"
+    )
 
-def format_error(error_type: str, message: str) -> str:
-    """Format error message"""
-    lines = [
-        f"Type: {error_type}",
-        f"Message: {message}"
-    ]
-    return premium_panel("Error", lines)
+
+# ─── /myinfo ──────────────────────────────────────────────────────────────────
+
+def format_myinfo(user: User, chat_title: str = None) -> str:
+    """Clean plain HTML — no ASCII borders"""
+    username = f"@{user.username}" if user.username else "—"
+    chat_type = "private" if not chat_title else "group"
+    text = (
+        "👤 <b>Account Info</b>\n\n"
+        f"Name: {(user.first_name or '—')[:32]}\n"
+        f"Last Name: {(user.last_name or '—')[:32]}\n"
+        f"Username: {username}\n"
+        f"User ID: <code>{user.id}</code>\n"
+        f"Language: {user.language_code or '—'}\n"
+        f"Chat Type: {chat_type}"
+    )
+    return text
+
+
+# ─── /id ──────────────────────────────────────────────────────────────────────
+
+def format_id(user: User, label: str = "YOUR  ID") -> str:
+    """Clean plain HTML — no ASCII borders"""
+    username = f"@{user.username}" if user.username else "—"
+    is_other = "USER" in label.upper()
+    title = "🆔 User ID" if is_other else "🆔 Your ID"
+    return (
+        f"{title}\n\n"
+        f"Name: {(user.first_name or '—')[:32]}\n"
+        f"Username: {username}\n"
+        f"User ID: <code>{user.id}</code>"
+    )
+
+
+# ─── /chatid ──────────────────────────────────────────────────────────────────
+
+def format_chatid(chat_id: int, chat_title: str, chat_type: str) -> str:
+    """Clean plain HTML — no ASCII borders"""
+    return (
+        "💬 <b>Chat ID</b>\n\n"
+        f"Chat: {chat_title[:32]}\n"
+        f"Type: {chat_type}\n"
+        f"ID: <code>{chat_id}</code>"
+    )
+
+
+# ─── Admin panel ──────────────────────────────────────────────────────────────
+
+def format_admin_panel(stats: dict = None) -> str:
+    """Clean plain HTML admin panel"""
+    text = (
+        "🔧 <b>Admin Panel</b>\n\n"
+        "/broadcast &lt;msg&gt; — send to all\n"
+        "/broadcast_media — reply to media\n"
+        "/stats — user/group counts\n"
+    )
+    if stats:
+        text += (
+            f"\nUsers: {stats.get('users', 0)}\n"
+            f"Groups: {stats.get('groups', 0)}"
+        )
+    return text
+
+
+# ─── /status ──────────────────────────────────────────────────────────────────
+
+def format_status(active_jobs: int = 0, queue: int = 0, uptime: str = "—") -> str:
+    return (
+        f"📊 <b>Bot Status</b>\n\n"
+        f"Active Jobs: {active_jobs}\n"
+        f"Queue: {queue}\n"
+        f"Uptime: {uptime}"
+    )
+
+
+# ─── Download status messages ─────────────────────────────────────────────────
+
+def format_processing(platform: str = "") -> str:
+    """Initial processing message"""
+    if platform == "youtube":
+        return "⏳ Processing link..."
+    elif platform == "shorts":
+        return "⚡ Processing Short..."
+    elif platform == "ytmusic":
+        return "🎵 Processing Audio..."
+    elif platform == "instagram":
+        return "⚡ Fetching Media..."
+    elif platform == "pinterest":
+        return "📌 Fetching Media..."
+    elif platform == "spotify":
+        return "🎵 Processing Track..."
+    return "⏳ Processing link..."
+
+
+def format_progress(pct: int, label: str = "Preparing media...") -> str:
+    """
+    📥 Downloading
+
+    [████░░░░░░] 40%
+    Preparing media...
+    """
+    width = 10
+    filled = int(width * pct / 100)
+    bar = "█" * filled + "░" * (width - filled)
+    return f"📥 <b>Downloading</b>\n\n[{bar}] {pct}%\n{label}"
+
+
+def format_delivered() -> str:
+    """Plain delivery confirmation"""
+    return "✓ Delivered"
+
+
+def format_error(message: str | None = None) -> str:
+    """Global error message — never show debug info"""
+    return "⚠ Unable to process this link.\n\nPlease try again."
+
+
+# ─── Spotify progress ─────────────────────────────────────────────────────────
+
+def format_playlist_detected() -> str:
+    return "🎵 <b>Playlist Detected</b>\n\nStarting download..."
+
+
+def format_playlist_progress(name: str, done: int, total: int) -> str:
+    """
+    Playlist: {name}
+
+    [██████░░░░] 60%
+    420 / 700 completed
+    """
+    if total > 0:
+        pct = min(100, int(done * 100 / total))
+    else:
+        pct = 0
+    width = 10
+    filled = int(width * pct / 100)
+    bar = "█" * filled + "░" * (width - filled)
+    name_short = (name or "Playlist")[:30]
+    return (
+        f"Playlist: {name_short}\n\n"
+        f"[{bar}] {pct}%\n"
+        f"{done} / {total} completed"
+    )
+
+
+def format_playlist_final(user: User, name: str, total: int, sent: int, failed: int) -> str:
+    """
+    🎉 Playlist Completed — mention
+
+    Total: 700
+    Sent: 692
+    Failed: 8
+    """
+    safe_name = (user.first_name or "User")[:32].replace("<", "").replace(">", "")
+    user_link = f'<a href="tg://user?id={user.id}">{safe_name}</a>'
+    return (
+        f"🎉 <b>Playlist Completed</b>\n\n"
+        f"Total: {total}\n"
+        f"Sent: {sent}\n"
+        f"Failed: {failed}\n\n"
+        f"{user_link}"
+    )
+
+
+def format_playlist_dm_complete(name: str) -> str:
+    """Final DM message after playlist delivery"""
+    return (
+        "🎵 <b>Playlist Delivered</b>\n\n"
+        "Thank you for using Nagu Downloader."
+    )
+
+
+def format_spotify_complete(user: User, total: int, sent: int) -> str:
+    """Legacy compat"""
+    return format_playlist_final(user, "", total, sent, total - sent)
+
+
+# ─── Broadcast ────────────────────────────────────────────────────────────────
+
+def format_broadcast_started() -> str:
+    return "📢 <b>Broadcast Started</b>"
+
+
+def format_broadcast_report(total_users: int, total_groups: int, success: int, failed: int) -> str:
+    return (
+        f"📢 <b>Broadcast Report</b>\n\n"
+        f"Users: {total_users:,}\n"
+        f"Groups: {total_groups:,}\n"
+        f"Success: {success:,}\n"
+        f"Failed: {failed:,}"
+    )
+
+
+# ─── Legacy compat ────────────────────────────────────────────────────────────
+
+def format_welcome_legacy(user: User, user_id: int) -> str:
+    return format_welcome(user, user_id)
+
+
+def format_help_video_legacy() -> str:
+    return format_help_video()
+
+
+def format_help_music_legacy() -> str:
+    return format_help_music()
+
+
+def format_help_info_legacy() -> str:
+    return format_help_info()
+
+
+def format_download_complete(user: User, elapsed: float, platform: str) -> str:
+    """Legacy compat"""
+    return format_delivered()
+
+
+def format_audio_info(user: User, title: str, artist: str, size_mb: float, elapsed: float) -> str:
+    """Legacy compat"""
+    return format_delivered()
+
 
 def format_user_info(user: User, chat_title: str = None) -> str:
-    """Format user information panel"""
-    username = f"@{user.username}" if user.username else "No username"
-    lines = [
-        f"Name: {user.first_name}",
-        f"Username: {username}",
-        f"ID: {format_user_id(user.id)}"
-    ]
-    if chat_title:
-        lines.append(f"Chat: {chat_title}")
-    return premium_panel("User Information", lines)
+    return format_myinfo(user, chat_title)
